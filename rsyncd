@@ -30,7 +30,7 @@ test -x $RSYNCPROG || exit 0
 
 start() {
 	echo -n "Starting rsyncd: "
-	daemon -p $RSYNCDPID $RSYNCPROG --daemon --config=$RSYNCDCONF
+	daemon --pidfile=$RSYNCDPID $RSYNCPROG --daemon --config=$RSYNCDCONF
 	RETVAL=$?
 	echo 
 	return $RETVAL
@@ -39,17 +39,17 @@ start() {
 stop() {
 	echo -n "Stopping rsyncd: "
 	killproc -p $RSYNCDPID $PROG -QUIT
+	rm -f $RSYNCDPID
 	RETVAL=$?
 	echo
 	return $RETVAL 
 }
 
 restart() {
-	echo -n "Restarting rsyncd: "
+	echo "Restarting rsyncd: "
 	stop
 	sleep 1
 	start
-	echo
 }
 
 reload() {
@@ -65,7 +65,7 @@ case "$1" in
 		stop
 	;;
 	status)
-		status rsyncd
+		status -p $RSYNCDPID rsyncd
 	;;
 	restart)
 		restart
