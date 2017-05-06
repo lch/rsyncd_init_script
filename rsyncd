@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# rsyncd - this script start and stop rsync daemon
+#
+### BEGIN INIT INFO
+# Provides:				rsyncd
+# Required-Start:		$remote_fs $local_fs $network $syslog
+# Required-Stop:		$remote_fs $local_fs $network $syslog
+# Default-Start:		2 3 4 5
+# Default-Stop:			0 1 6
+# Short-Description:	Rsync Daemon.
+# Description:	rsync is a program that allows files to be copied to and
+#				from remote machines in much the same way as rcp.
+# 				This provides rsyncd daemon functionality	  
+### END INIT INFO
+
+# Get function from functions library
+. /etc/init.d/functions
+
+RSYNCPROG=/usr/bin/rsync
+RSYNCDCONF=/etc/rsyncd.conf
+if [ ! -s "$RSYNCDCONF" ]; then
+	echo -n "missing or empty config file $RSYNCDCONF"
+	exit 0
+fi
+RSYNCDPID=$(awk '/^pid file/{print $4}' $RSYNCDCONF)
+PROG=$(basename $RSYNCPROG)
+
+test -x $RSYNCPROG || exit 0
+
+start() {
+	echo -n "Starting rsyncd: "
+	daemon -p $RSYNCDPID $RSYNCPROG --daemon --config=$RSYNCDCONF
+	RETVAL=$?
+	echo 
+	return $RETVAL
+}
+
+stop() {
+	echo -n "Stopping rsyncd: "
+	killproc -p $RSYNCDPID $PROG -QUIT
+	RETVAL=$?
+	echo
+	return $RETVAL 
+}
+
+restart() {
+	echo -n "Restarting rsyncd: "
+	stop
+	sleep 1
+	start
+	echo
+}
+
+reload() {
+	echo -n "Reloading rsync daemon: "
+	killproc -p $RSYNCDPID $PROG -HUP
+}
+
+case "$1" in
+	start)
+		start
+	;;
+	stop)
+		stop
+	;;
+	status)
+		status rsyncd
+	;;
+	restart)
+		restart
+	;;
+	reload|force-reload)
+		reload
+	;;
+	*)
+	echo "Usage: {start|stop|reload|force-reload|restart|status}"
+	exit 1
+	;;
+esac
+exit $?
