@@ -53,8 +53,8 @@ restart() {
 }
 
 reload() {
-	echo -n "Reloading rsync daemon: "
-	killproc -p $RSYNCDPID $PROG -HUP
+	echo "Reloading rsync daemon: not needed, as the daemon"
+    echo "re-reads the config file whenever a client connects."
 }
 
 case "$1" in
