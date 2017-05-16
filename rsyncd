@@ -54,7 +54,7 @@ restart() {
 
 reload() {
 	echo "Reloading rsync daemon: not needed, as the daemon"
-    echo "re-reads the config file whenever a client connects."
+	echo "re-reads the config file whenever a client connects."
 }
 
 case "$1" in
